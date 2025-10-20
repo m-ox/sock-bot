@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "reboot:sockmonkey": "bask scripts/reboot-sockmonkey.sh"
+    "update:sockmonkey": "dotenv -- bash -c 'ssh $PI_HOST bash $PI_PATH/update.sh'"
   },
   "keywords": [],
   "author": "",
@@ -17,5 +17,8 @@
   "dependencies": {
     "discord.js": "^14.23.2",
     "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^10.0.0"
   }
 }
