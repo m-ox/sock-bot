@@ -3,8 +3,8 @@ import { executeZooted } from "../commands/zooted.js";
 import { handleWorm } from "../commands/worm.js";
 import { handleWarm } from "../commands/warm.js";
 import { handlePocketSand } from "../commands/pocketsand.js";
-import { applyEffect } from "../effects/index.js";
-import { executeCursed, executePurify } from "../effects/cursed.js";
+import { applyEffect } from "../commands/index.js";
+import { executeCursed, executePurify } from "../commands/cursed.js";
 
 const prefixCommands = {
   "!online": maintenanceCommands.online,
