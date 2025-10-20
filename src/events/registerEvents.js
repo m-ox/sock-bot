@@ -1,7 +1,7 @@
-import ready from './ready.js';
-import messageCreate from './messageCreate.js';
+import ready from "./ready.js";
+import messageCreate from "./messageCreate.js";
 
 export function registerEvents(client) {
-  client.once('clientReady', ready);
-  client.on('messageCreate', messageCreate);
+  client.once("ready", () => ready(client));
+  client.on("messageCreate", (message) => messageCreate(message, client));
 }
