@@ -1,6 +1,5 @@
 import { stonerize } from './stoner.js';
-import { executeCursed } from './cursed.js';
-import { executePurify } from './purify.js';
+import { executeCursed, executePurify } from './cursed.js';
 
 export const effects = {
   zooted: stonerize,

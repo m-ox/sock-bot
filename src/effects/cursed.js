@@ -1,12 +1,25 @@
+export async function curseTransform(message) {
+  const bot = message.guild.members.me;
+  if (!bot?.permissions.has("ManageMessages")) return null;
+
+  const cursedText = message.content
+    .split("")
+    .map((ch) => (/[a-zA-Z]/.test(ch) && Math.random() < 0.25 ? "👁️" : ch))
+    .join("");
+
+  try {
+    await message.delete();
+  } catch (_) {}
+
+  return `**${message.member.displayName}** (cursed): ${cursedText}`;
+}
+
 export async function executeCursed(message) {
   const target = message.mentions.members.first();
-  if (!target) {
-    await message.reply("Tag someone to curse, mortal.");
-    return;
-  }
+  if (!target) return message.reply("Tag someone to curse, mortal.");
 
   await message.guild.roles.fetch();
-  let cursedRole = message.guild.roles.cache.find(r => r.name === "cursed");
+  let cursedRole = message.guild.roles.cache.find((r) => r.name === "cursed");
   if (!cursedRole) {
     cursedRole = await message.guild.roles.create({
       name: "cursed",
@@ -15,42 +28,38 @@ export async function executeCursed(message) {
     });
   }
 
-  // stop if target already cursed
-  if (target.roles.cache.has(cursedRole.id)) {
-    await message.reply(`${target.displayName} is already cursed.`);
+  if (target.roles.cache.has(cursedRole.id))
+    return message.reply(`${target.displayName} is already cursed.`);
+
+  await target.roles.add(cursedRole);
+  await message.channel.send(`**${target.displayName.toUpperCase()} HAS BEEN CURSED... ☠️**`);
+}
+
+export async function executePurify(message) {
+  const target = message.mentions.members.first();
+  if (!target) {
+    await message.reply("Tag someone to purify, mortal.");
     return;
   }
 
-  // fetch target's last message (optional)
-  const messages = await message.channel.messages.fetch({ limit: 50 });
-  const targetMessage = messages.find(
-    (m) => m.author.id === target.id && m.id !== message.id
-  );
-
-  const cursedMap = { /* same map as before */ };
-  const corrupt = (text) =>
-    text
-      .split("")
-      .map((ch) => (Math.random() < 0.1 ? "👁️" : cursedMap[ch.toLowerCase()] || ch))
-      .join("");
+  await message.guild.roles.fetch();
+  const cursedRole = message.guild.roles.cache.find(r => r.name === "cursed");
+  if (!cursedRole) {
+    await message.reply("No cursed role exists in this realm.");
+    return;
+  }
 
   try {
-    await target.roles.add(cursedRole);
-
-    if (
-      targetMessage &&
-      message.guild.members.me.permissions.has("ManageMessages")
-    ) {
-      await targetMessage.delete();
-      const cursedText = corrupt(targetMessage.content);
-      await message.channel.send(`**${target.displayName}** (cursed): ${cursedText}`);
+    if (target.roles.cache.has(cursedRole.id)) {
+      await target.roles.remove(cursedRole);
+      await message.channel.send(
+        `✨ ${target.displayName} has been purified. The curse is lifted.`
+      );
+    } else {
+      await message.reply(`${target.displayName} is not cursed.`);
     }
-
-    await message.channel.send(
-      `**${target.displayName.toUpperCase()} HAS BEEN CURSED... ☠️**`
-    );
   } catch (err) {
-    console.error("Curse failed:", err);
-    await message.reply("The curse fizzled out.");
+    console.error("Failed to purify:", err);
+    await message.reply("The purification ritual failed.");
   }
 }
