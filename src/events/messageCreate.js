@@ -5,6 +5,7 @@ import { handleWarm } from "../commands/warm.js";
 import { handlePocketSand } from "../commands/pocketsand.js";
 import { applyEffect } from "../commands/index.js";
 import { executeCursed, executePurify } from "../commands/cursed.js";
+import { handleBugMonch } from "../commands/bug.js";
 
 const prefixCommands = {
   "!online": maintenanceCommands.online,
@@ -18,6 +19,7 @@ const prefixCommands = {
 const passiveTriggers = {
   worm: handleWorm,
   warm: handleWarm,
+  "bug": handleBugMonch,
   "pocket sand": handlePocketSand,
 };
 
