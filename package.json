@@ -16,7 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^14.23.2",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "telnet-client": "^2.2.9"
   },
   "devDependencies": {
     "dotenv-cli": "^10.0.0"
