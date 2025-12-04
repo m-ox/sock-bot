@@ -10,6 +10,52 @@ const CHANNEL = process.env.SEVENDTD_CHANNEL;
 let sock = null;
 let buffer = "";
 
+// -------------------------------------------------------------
+// FILTERS
+// -------------------------------------------------------------
+const DROP = [
+  "XML patch",                    // mod patch failures
+  "did not apply",                // mod errors
+  "WRN XML",                      // mod warnings
+  "WRN"                           // engine patch warnings
+];
+
+const ALLOW = [
+  "joined the game",
+  "Player connected",
+  "disconnected",
+  "INF Chat",
+  "GMSG",
+  "Party",
+  "Zombie"
+];
+
+// -------------------------------------------------------------
+// FORMATTER
+// -------------------------------------------------------------
+function formatLog(line) {
+  const m = line.match(/^(\S+)\s+(\S+)\s+(\S+)\s+(.*)$/);
+  if (!m) return line;
+  const [, date, time, level, msg] = m;
+  return `[${date} ${time}] ${level}: ${msg}`;
+}
+
+// -------------------------------------------------------------
+// FILTER
+// -------------------------------------------------------------
+function shouldDrop(line) {
+  for (const k of DROP) if (line.includes(k)) return true;
+  return false;
+}
+
+function shouldAllow(line) {
+  for (const k of ALLOW) if (line.includes(k)) return true;
+  return false;
+}
+
+// -------------------------------------------------------------
+// TELNET SETUP
+// -------------------------------------------------------------
 function startTelnet() {
   sock = net.connect({ host: HOST, port: PORT }, () => {
     sock.write(PASS + "\n");
@@ -31,22 +77,19 @@ function startTelnet() {
   });
 }
 
+// -------------------------------------------------------------
+// LINE HANDLER
+// -------------------------------------------------------------
 function processLine(line) {
   if (!line) return;
+  if (shouldDrop(line)) return;
+  if (!shouldAllow(line)) return;
+
   const channel = client.channels.cache.get(CHANNEL);
   if (!channel) return;
 
-  if (
-    line.includes("joined the game") ||
-    line.includes("Player connected") ||
-    line.includes("disconnected") ||
-    line.includes("INF Chat") ||
-    line.includes("GMSG") ||
-    line.includes("Party") ||
-    line.includes("Zombie")
-  ) {
-    channel.send(line);
-  }
+  channel.send(formatLog(line));
 }
 
+// -------------------------------------------------------------
 startTelnet();
